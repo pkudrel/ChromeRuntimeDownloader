@@ -21,4 +21,4 @@ install:
   - git checkout master
 
 build_script: 
-   - ps: .\src\build\test.ps1
+   - ps: .\src\build\bl.ps1
