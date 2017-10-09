@@ -5,31 +5,22 @@
 
 [cmdletBinding()]
 param(
-	$appName = "InteractiveExtractor",
-	$serverDir = "C:\work\users\AntyPiracy\",
+	$appName = "ChromeRuntimeDownloader",
 	$toolsDir = (Join-Path $BL.ScriptsPath  "tools"),
 	$scriptsPath = $BL.ScriptsPath,
 	$nuget = (Join-Path $toolsDir  "nuget/nuget.exe"),
 	$libz = (Join-Path $toolsDir  "LibZ.Tool/tools/libz.exe"),
 	$7zip = (Join-Path $toolsDir  "7-Zip.CommandLine/tools/7za.exe"),
-	$rijndael256 = (Join-Path $toolsDir  "/Rijndael256/lib/net452/Rijndael256.dll"),
 	$srcDir = (Join-Path $BL.RepoRoot "src"),
-	$project  = (Join-Path $BL.RepoRoot  "/src/InteractiveExtractor/InteractiveExtractor.csproj" ),
-	$sln  = (Join-Path $BL.RepoRoot  "/src/InteractiveExtractor.sln" ),
+	$project  = (Join-Path $BL.RepoRoot  "/src/ChromeRuntimeDownloader/ChromeRuntimeDownloader.csproj" ),
+	$sln  = (Join-Path $BL.RepoRoot  "/src/ChromeRuntimeDownloader.sln" ),
 	$buildTmpDir  = (Join-Path $BL.BuildOutPath "tmp" ),
-	$runtimeInfoFile  = $(if ($env:TEAMCITY_VERSION ) {
-		(Join-Path $serverDir "\dl\InteractiveExtractor\runtime.json" )} 
-		else 
-		{(Join-Path $BL.RepoRoot ".dev/work-dir/chrome-runtime/runtime.json" )}),
+
 	$buildReadyDir  = (Join-Path $BL.BuildOutPath "ready" ),
 	$Dirs = (@{"marge" = "marge"; "runtime" = "runtime"; "build" = "build"; "nuget" = "nuget"; "main" = "main"  }),
 	$buildWorkDir  = (Join-Path $buildTmpDir "build" ),
-	$target  = "Release",
-	$test  = 00,
-	$cefFilesMain = @("cef.pak", "cef_100_percent.pak", "cef_200_percent.pak", "cef_extensions.pak", "devtools_resources.pak", "icudtl.dat"),
-	$cefFilesPlatform = @("chrome_elf.dll", "d3dcompiler_47.dll", "libcef.dll", "libEGL.dll", "libGLESv2.dll", "natives_blob.bin","snapshot_blob.bin", "widevinecdmadapter.dll"),
-	$donotMarge =  @("ReactiveUI.dll","CefSharp.dll","CefSharp.Core.dll","Splat.dll"),
-	$runtimeVersion = "57.0.0"
+	$target  = "Release"
+
 )
 
 
@@ -121,19 +112,7 @@ task Build {
 	}
 }
 
-task PostBuild {
 
-	#Remove CefFiles
-	Set-Location  $buildWorkDir
-	"Remove Cef files"
-
-	foreach ($f in  $cefFilesMain){
-		Remove-Item $f
-	}
-
-	foreach ($f in  $cefFilesPlatform){
-		Remove-Item $f
-	}
 }
 
 # Synopsis: Marge 
@@ -163,68 +142,7 @@ task Marge  {
 
 }
 
-# Synopsis: Package-Restore
-task PackRuntime {
-	"Make runtime files"
 
-	if(RuntimeFileIsValid){ 
-			"Runtime version '$runtimeVersion', already exists. Skipping generation"
-			return
-	}
-	
-
-	$packagesDir = Join-Path $srcDir "packages"
-	$margedDir = (Join-Path $buildTmpDir $Dirs.marge  )
-	$runtimeDir = (Join-Path $buildTmpDir $Dirs.runtime  )
-
-	Set-Location  $packagesDir 
-	
-	$conf = '{
-    "x86": [
-        {
-            "cef": "cef.redist.x86.3.2987.1601\\CEF\\",
-            "CefSharpCommon": "CefSharp.Common.57.0.0\\CefSharp\\x86\\",
-            "CefSharpWpf": "CefSharp.Wpf.57.0.0\\CefSharp\\x86\\"
-        }
-    ],
-    "x64": [
-        {
-            "cef": "cef.redist.x64.3.2987.1601\\CEF\\",
-			 "CefSharpCommon": "CefSharp.Common.57.0.0\\CefSharp\\x64\\",
-			 "CefSharpWpf": "CefSharp.Wpf.57.0.0\\CefSharp\\x64\\"
-        }
-    ]
-}'
-
-	
-	$conf
-	$o = $conf | ConvertFrom-Json
-		
-	foreach ($f in  $o.PSObject.Properties){
-		$v = $f.Value 
-		$n = $f.Name
-		$dst = Join-Path $runtimeDir $n
-		$tmpDst = Join-Path $dst  "tmp"
-		EnsureDirExistsAndIsEmpty $dst
-		EnsureDirExistsAndIsEmpty $tmpDst
-		$cef = Join-Path $packagesDir $v.cef 
-		
-		Set-Location  $cef 
-		Get-ChildItem *.*  | Copy-Item -destination $tmpDst 
-		Copy-Item "$cef\locales"  -destination $tmpDst  -Recurse
-		Copy-Item "$cef\$n\*"  -destination $tmpDst  -Recurse
-		Copy-Item "$packagesDir\$($v.CefSharpCommon)\*"  -destination $tmpDst  -Recurse
-		Copy-Item "$packagesDir\$($v.CefSharpWpf)\*"  -destination $tmpDst  -Recurse
-		Set-Location  $tmpDst
-		
-		$readyDir =  Join-Path $buildReadyDir  $Dirs.runtime
-		exec {  &$7zip  a -r -tzip $readyDir/runtime.$n.$runtimeVersion.zip *.* }
-	
-		#EnsureDirExistsAndIsEmpty $tmpDst
-	}
-	
-
-}
 
 
 # Synopsis: Make nuget file
@@ -403,19 +321,7 @@ function DownloadIfNotExists($src , $dst){
 	} 
 }
 
-function RuntimeFileIsValid(){
-	"Check runtime file: '$runtimeInfoFile'"
-	if([System.IO.File]::Exists($runtimeInfoFile)){ 
-		$json = [System.IO.File]::ReadAllText($runtimeInfoFile)
-		$o = $json  | ConvertFrom-Json
 
-		if($runtimeVersion -eq $o.ChromeRuntimeVersion){
-			"Runtime version '$runtimeVersion', already exists. Skipping generation"
-			return $true
-		} 
-	} 
-	return $false
-}
 
 # Synopsis: Build and clean.
 
