@@ -1,4 +1,5 @@
 & git rev-parse --show-toplevel
+& git branch
 & git log --max-count=1 --pretty=format:%cI HEAD
 & git rev-parse --abbrev-ref HEAD
 & git symbolic-ref --short -q HEAD
