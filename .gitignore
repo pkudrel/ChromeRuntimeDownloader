@@ -29,9 +29,8 @@ rcf/
 
 
 src/build/tools/*
-!src/build/tools/nuget
 
-.stuff/*
+stuff/*
 .build
 .secrets/*
 .dev/*
