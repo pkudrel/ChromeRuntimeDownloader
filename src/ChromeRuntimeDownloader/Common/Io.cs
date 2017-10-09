@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Vendors.ShellProgressBar;
 
-namespace ChromeRuntimeDownloader.Tools
+namespace ChromeRuntimeDownloader.Common
 {
     public static class Io
     {
@@ -29,7 +29,7 @@ namespace ChromeRuntimeDownloader.Tools
             {
 
                 var d = Path.GetDirectoryName(destinationPath);
-                Tools.Io.CreateDirIfNotExist(d);
+                Io.CreateDirIfNotExist(d);
 
                 using (Stream destination = File.Create(destinationPath))
                 {

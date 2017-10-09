@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Feature.Workers.Models;
 using ChromeRuntimeDownloader.Models;
-using ChromeRuntimeDownloader.Tools;
 
 namespace ChromeRuntimeDownloader.Feature.Workers.DefaultWorkers
 {

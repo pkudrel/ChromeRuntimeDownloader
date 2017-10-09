@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ChromeRuntimeDownloader.Common;
 using ChromeRuntimeDownloader.Feature.Workers.Services;
 using ChromeRuntimeDownloader.Models;
-using ChromeRuntimeDownloader.Tools;
 
 namespace ChromeRuntimeDownloader.Feature.MainTask
 {
