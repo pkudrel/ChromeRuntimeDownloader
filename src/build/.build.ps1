@@ -33,9 +33,7 @@ Set-Alias MSBuild (Resolve-MSBuild)
 # inser tools
 . (Join-Path $BL.ScriptsPath  "vendor\ps-auto-helpers\ps\misc.ps1")
 . (Join-Path $BL.ScriptsPath  "vendor\ps-auto-helpers\ps\io.ps1")
-. (Join-Path $BL.ScriptsPath  "vendor\ps-auto-helpers\ps\syrup.ps1")
 . (Join-Path $BL.ScriptsPath  "vendor\ps-auto-helpers\ps\assembly-tools.ps1")
-. (Join-Path $BL.ScriptsPath  "vendor\ps-auto-helpers\ps\git-helpers.ps1")
 
 
 
@@ -71,8 +69,6 @@ task CheckTools {
 	DownloadIfNotExists "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" $nuget 
 	DownloadNugetIfNotExists $nuget "LibZ.Tool" $toolsDir $libz
 	DownloadNugetIfNotExists $nuget "7-Zip.CommandLine" $toolsDir $7zip
-	DownloadNugetIfNotExists $nuget "Rijndael256" $toolsDir $rijndael256
-
 
 }
 
@@ -113,7 +109,7 @@ task Build {
 }
 
 
-}
+
 
 # Synopsis: Marge 
 task Marge  {	
@@ -326,7 +322,6 @@ function DownloadIfNotExists($src , $dst){
 # Synopsis: Build and clean.
 
 task Startup  Startup-TeamCity, CheckTools
-task BuildTask RestorePackage,  Build, PostBuild
-task RunTime PackRuntime
+task BuildTask RestorePackage,  Build
 task Publish Publish-Local, Publish-TeamCity
-task . Startup, BuildTask, Marge, Make-Nuget, RunTime, Publish
+task . Startup, BuildTask, Marge, Make-Nuget,  Publish

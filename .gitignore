@@ -29,7 +29,6 @@ rcf/
 
 
 src/build/tools/*
-!src/build/tools/nuget
 
 stuff/*
 .build
