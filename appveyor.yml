@@ -22,3 +22,9 @@ install:
 
 build_script: 
    - ps: .\src\build\bl.ps1
+
+
+artifacts:
+
+  # pushing all *.nupkg files in build directory recursively
+  - path: '.\.build\ready\**\*.nupkg'
