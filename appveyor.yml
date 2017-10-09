@@ -16,4 +16,4 @@ branches:
     - master
 
 build_script: 
-   - ps: .\src\build\bl.ps1
+   - ps: .\src\build\test.ps1
