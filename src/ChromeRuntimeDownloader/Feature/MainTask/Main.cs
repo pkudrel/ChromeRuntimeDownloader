@@ -25,7 +25,10 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
 
         public async Task Make(string runTimeVersion, Config config)
         {
-            var p = config.Packages.Select(x => new PackagesInfo(x)).ToArray();
+            var set = config.Packages.FirstOrDefault(x => x.Key == config.DefaultPackageVersion).Value;
+            if (set == null)
+                throw new ArgumentNullException($"Cannot find package version: '{config.DefaultPackageVersion}'");
+            var p = set.Select(x => new PackagesInfo(x)).ToArray();
             var p1 = await Download(p);
             var p2 = await Extract(p1);
             var p3 = await CopyToDestination(p1, runTimeVersion);

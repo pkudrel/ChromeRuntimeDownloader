@@ -92,10 +92,10 @@ task Build {
 		"AssemblyVersion: $($bv.AssemblyFileVersion)"
 		"AssemblyVersion: $($bv.AssemblyInformationalVersion)"
 
-		$srcWorkDir = Join-Path $srcDir "InteractiveExtractor"
+		$srcWorkDir = Join-Path $srcDir "ChromeRuntimeDownloader"
 		BackupTemporaryFiles $srcWorkDir  "Properties\AssemblyInfo.cs"
 		UpdateAssemblyInfo $srcWorkDir $bv.AssemblyVersion $bv.AssemblyFileVersion $bv.AssemblyInformationalVersion $appName "DenebLab" "DenebLab"
-		exec { MSBuild $p  /v:quiet  /p:Configuration=$target /p:OutDir=$out /p:Platform=x64  } 
+		exec { MSBuild $p  /v:quiet  /p:Configuration=$target /p:OutDir=$out   } 
 	}
 
 	catch {
@@ -129,12 +129,10 @@ task Marge  {
 		Copy-Item $f -Destination $margedDir
 	}
 	
-	Copy-Item "InteractiveExtractor.exe"  -Destination $margedDir 
-	Copy-Item "NLog.config"  -Destination $margedDir
-	Copy-Item "InteractiveExtractor.exe"  -Destination $margedDir
+	Copy-Item "ChromeRuntimeDownloader.exe"  -Destination $margedDir 
 
 	Set-Location  $margedDir
-	& $libz inject-dll --assembly "InteractiveExtractor.exe" --include *.dll  $exclude --move
+	& $libz inject-dll --assembly "ChromeRuntimeDownloader.exe" --include *.dll  $exclude --move
 
 }
 
@@ -162,17 +160,7 @@ task Make-Nuget  {
 	Copy-Item  $src  -Recurse  -Destination $dst
 
 
-	"Copy fixed version NLog.config; Src: $src ; Dst: $dst "
-	$src = "$scriptsPath/nlog/main/NLog.config"
-	$dst = "$mainDir/NLog.config"
-	Copy-Item   $src  -Destination $dst -Force
-
-
-
-	$src = "$scriptsPath/syrup/scripts/*"
-	$dst = $syruScriptspDir
-	"Copy scripts; Src: $src ; Dst: $dst"
-	Copy-Item  $src -Destination $dst -Recurse
+	
 
 
 
@@ -188,7 +176,7 @@ task Make-Nuget  {
 	EnsureDirExistsAndIsEmpty $readyDir
     exec { &$nuget pack $specFileOutPath -OutputDirectory $readyDir  -NoPackageAnalysis}
 	$nugetFile =  ([System.IO.Directory]::GetFiles($readyDir , "*.nupkg"))[0]
-	SyrupGenerateInfoFile $nugetFile $appName  $BL.BuildVersion.SemVer "prod" $BL.BuildDateTime
+
 }
 
 
@@ -198,35 +186,11 @@ task Publish-Local -If (-not   $env:TEAMCITY_VERSION ) {
 	$devDir = (Join-Path $BL.RepoRoot ".dev")
 	$standolone = (Join-Path $devDir  "standalone-run")
 	$workDir = (Join-Path $devDir  "work-dir")
-	$runDir = Split-Path -Path $runtimeInfoFile
-	$runWithVersionDir = (Join-Path $runDir  $runtimeVersion)
 
 	
 	
 	
-	if(-not (RuntimeFileIsValid) ){ 
-		"Make runtime; Path: $runtimeInfoFile; Version: '$runtimeVersion'"
-		EnsureDirExistsAndIsEmpty  $runDir
-		EnsureDirExistsAndIsEmpty  $runWithVersionDir 
 
-		$readyDir =  Join-Path $buildReadyDir  $Dirs.runtime
-	
-		$arch = @("x86","x64")
-		foreach ($a in  $arch){
-			$dir = (Join-Path $runWithVersionDir   $a)
-			EnsureDirExistsAndIsEmpty  $dir
-			Set-Location  $dir
-			$src = "$readyDir/runtime.$a.$runtimeVersion.zip"
-			"Extracting: $src"
-			exec {  &$7zip  x  $src  | FIND /V "ing  "}
-		}
-		$o = [PSCustomObject] @{ChromeRuntimeVersion = $runtimeVersion }
-		$json = (ConvertTo-json $o)		
-		[System.IO.File]::WriteAllLines($runtimeInfoFile, $json, [text.encoding]::UTF8)
-
-	} else {
-		"Runtime exists; Path: $runtimeInfoFile; Version: '$runtimeVersion'"
-	}
 
 
 	"Make standalone app"
@@ -237,31 +201,9 @@ task Publish-Local -If (-not   $env:TEAMCITY_VERSION ) {
 	"Copy main; Src: $src ; Dst: $dst"
 	Copy-Item  $src  -Recurse  -Destination $dst
 
-	"Make syrup version"
-	$syrupDir = (Join-Path $devDir ".syrup-version")
-	$syrupAppDir = (Join-Path $syrupDir "app")
-	$syrupMainDir = (Join-Path $syrupDir ".syrup")
-	$syrupNugetDir = (Join-Path $syrupMainDir "nuget")
-	$nugetSrcDir =  Join-Path $buildReadyDir  $Dirs.nuget
+
 	
-	#nugetDirName
 
-	$currentNugetDir = "$appName.$($BL.BuildVersion.SemVer)"
-	$nugetDstDir =  Join-Path $syrupNugetDir  $currentNugetDir
-
-	$nugetDstDir
-	EnsureDirExistsAndIsEmpty $syrupAppDir
-	EnsureDirExistsAndIsEmpty $syrupNugetDir
-	EnsureDirExistsAndIsEmpty $nugetDstDir
-
-	$src = "$nugetSrcDir/*"
-	$dst = $nugetDstDir
-	"Copy to dev syrup version; Src: $src ; Dst: $dst"
-	Copy-Item $src  -Destination  $dst
-
-	"Remove lnk"
-	Set-Location  $syrupDir
-	remove-item *.lnk  
 
 
 }
