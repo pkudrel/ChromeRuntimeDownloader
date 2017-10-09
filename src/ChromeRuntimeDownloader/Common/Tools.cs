@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 
 namespace ChromeRuntimeDownloader.Common
 {
@@ -6,8 +7,9 @@ namespace ChromeRuntimeDownloader.Common
     {
         public static string GetProgramDir()
         {
-
-            return Assembly.GetEntryAssembly().Location;
+            var app = Assembly.GetEntryAssembly().Location;
+            var dir = Path.GetDirectoryName(app);
+            return dir;
         }
     }
 }
