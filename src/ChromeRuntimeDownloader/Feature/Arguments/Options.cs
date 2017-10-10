@@ -1,5 +1,5 @@
-﻿using System.Text;
-using CommandLine;
+﻿using CommandLine;
+using CommandLine.Text;
 
 namespace ChromeRuntimeDownloader.Feature.Arguments
 {
@@ -19,19 +19,23 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
 
         [Option('p', "packageVersion",
             DefaultValue = "57.0.0",
-            HelpText = "Package version. Default value: '57.0.0'. By default, the program knows only this version. Other versions should  be specified in config file.")]
+            HelpText =
+                "Package version. Default value: '57.0.0'. By default, the program knows only this version. Other versions should  be specified in config file.")]
         public string PackageVersion { get; set; }
 
         [HelpOption]
         public string GetUsage()
         {
-            // this without using CommandLine.Text
-            //  or using HelpText.AutoBuild
-            var usage = new StringBuilder();
-            usage.AppendLine("Quickstart Application 1.0");
-            usage.AppendLine("Read user manual for usage instructions...");
-            return usage.ToString();
-        }
+            var help = new HelpText
+            {
+                Copyright = new CopyrightInfo("DenebLab", 2017),
+                AdditionalNewLineAfterOption = true,
+                AddDashesToOption = true
+            };
 
+            help.AddPreOptionsLine("Usage: app -p Someone");
+            help.AddOptions(this);
+            return help;
+        }
     }
 }

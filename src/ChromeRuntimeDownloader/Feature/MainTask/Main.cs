@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,10 +29,25 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
             var set = config.Packages.FirstOrDefault(x => x.Key == config.DefaultPackageVersion).Value;
             if (set == null)
                 throw new ArgumentNullException($"Cannot find package version: '{config.DefaultPackageVersion}'");
+
+
+            Console.WriteLine($"Runtime will be created in: {Path.Combine(_dstRuntimeDir, runTimeVersion)}");
+            Console.WriteLine("Application will use those packages, to create runtime:");
+            foreach (var nugetInfo in set)
+            {
+                Console.WriteLine($"Name: {nugetInfo.Name}; Version: {nugetInfo.Version}");
+            }
+
+            Console.WriteLine($"Begin process");
+            var sw = new Stopwatch();
+            sw.Start();
             var p = set.Select(x => new PackagesInfo(x)).ToArray();
             var p1 = await Download(p);
             var p2 = await Extract(p1);
             var p3 = await CopyToDestination(p1, runTimeVersion);
+            sw.Stop();
+            Console.WriteLine($"Done - process took: {(sw.ElapsedMilliseconds)/1000}s");
+            Io.RemoveFolder(_tmpDir);
         }
 
         private async Task<string> CopyToDestination(PackagesInfo[] packages, string runTimeVersion)

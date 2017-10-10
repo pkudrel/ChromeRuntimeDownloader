@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Tools.cs" />
+    <Compile Include="Common\Version\Version.cs" />
+    <Compile Include="Common\Version\VersionGenerator.cs" />
     <Compile Include="Feature\Arguments\Options.cs" />
     <Compile Include="Feature\MainTask\DownloadTask.cs" />
     <Compile Include="Feature\MainTask\Main.cs" />
