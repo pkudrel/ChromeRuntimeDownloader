@@ -21,7 +21,7 @@ install:
   - git checkout master
 
 build_script: 
-   - ps: .\src\build\bl.ps1 .\src\build\bl.ps1 -major 1 -buildCounter %appveyor_build_number%
+   - ps: .\src\build\bl.ps1 .\src\build\bl.ps1 -major 1 -buildCounter=$env:appveyor_build_number
 
 
 artifacts:
