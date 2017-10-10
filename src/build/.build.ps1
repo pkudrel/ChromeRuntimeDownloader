@@ -46,24 +46,6 @@ task RestorePackage {
 	exec {  &$nuget restore $sln  }
 }
 
-task Startup-TeamCity {
-
-	if ($env:TEAMCITY_VERSION) {
-		$tvc = $env:TEAMCITY_VERSION
-		Write-Build Green "Setup TeamCity: $tvc" 
-		$s = $BL.BuildVersion.SemVer
-		"##teamcity[buildNumber '$s']"
-		try {
-			$max = $host.UI.RawUI.MaxPhysicalWindowSize
-			if($max) {
-			$host.UI.RawUI.BufferSize = New-Object System.Management.Automation.Host.Size(9999,9999)
-			$host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size($max.Width,$max.Height)
-		}
-		} catch {}
-	}
-
-}
-
 task CheckTools {
 	Write-Build Green "Check: Nuget"
 	DownloadIfNotExists "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" $nuget 
@@ -208,38 +190,7 @@ task Publish-Local -If (-not   $env:TEAMCITY_VERSION ) {
 
 }
 
-task Publish-TeamCity -If ($env:TEAMCITY_VERSION ) {
-	"Publish teamcity"
-	$runDir = Split-Path -Path $runtimeInfoFile
-	EnsureDirExists $runDir
-	if(-not (RuntimeFileIsValid) ){ 
-		"Copy new runtime;"
-		$readyDir =  Join-Path $buildReadyDir  $Dirs.runtime
-		$arch = @("x86","x64")
-		foreach ($a in  $arch) {
-				$src = "$readyDir/runtime.$a.$runtimeVersion.zip"
-			    $dst =  $runDir
-				"Copy; Src:$src ; Dst:  $dst"
-				Copy-Item $src  -Destination  $dst
-		}
-		$o = [PSCustomObject] @{ChromeRuntimeVersion = $runtimeVersion }
-		$json = (ConvertTo-json $o)		
-		[System.IO.File]::WriteAllLines($runtimeInfoFile, $json, [text.encoding]::UTF8)
-	}
 
-	$serverAppDir = Join-Path $serverDir $appName 
-	EnsureDirExists $serverAppDir
-	$syrupDir = Join-Path $serverAppDir "syrup"
-	EnsureDirExists $syrupDir
-	
-	$readyDir =  Join-Path $buildReadyDir  $Dirs.nuget
-
-	$src = "$readyDir/*"
-	$dst = $syrupDir
-	"Copy to syrup; Src:$src ; Dst: $dst"
-	Copy-Item $src  -Destination  $dst
-
-}
 
 
 # Synopsis: Remove temp files.
@@ -263,7 +214,7 @@ function DownloadIfNotExists($src , $dst){
 
 # Synopsis: Build and clean.
 
-task Startup  Startup-TeamCity, CheckTools
+task Startup CheckTools
 task BuildTask RestorePackage,  Build
-task Publish Publish-Local, Publish-TeamCity
+task Publish Publish-Local
 task . Startup, BuildTask, Marge, Make-Nuget,  Publish
