@@ -28,12 +28,6 @@ $BL.PsAutoHelpers = (Join-Path $BL.ScriptsPath "vendor\ps-auto-helpers")
 $BL.ib = (Join-Path $BL.ScriptsPath "vendor\ps-auto-helpers\tools\ib\Invoke-Build.ps1")
 $BL.ibVersionFile = (Join-Path $BL.ScriptsPath "vendor\ps-auto-helpers\tools\ib-version.txt")
 
-
-Write-Output "AAA"
-
-& git rev-parse --show-toplevel 
-
-
 # import tools
 . (Join-Path $BL.PsAutoHelpers "ps\psgitversion.ps1")
 . (Join-Path $BL.PsAutoHelpers "ps\ib-update-tools.ps1")
