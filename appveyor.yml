@@ -21,7 +21,7 @@ install:
   - git checkout master
 
 build_script: 
-   - ps: .\src\build\bl.ps1 .\src\build\bl.ps1 -major 1 -buildCounter '{build}''
+   - ps: .\src\build\bl.ps1 .\src\build\bl.ps1 -major 1 -buildCounter '{build}'
 
 
 artifacts:
