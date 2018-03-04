@@ -34,3 +34,4 @@ stuff/*
 .build
 .secrets/*
 .dev/*
+src/.vs/*
