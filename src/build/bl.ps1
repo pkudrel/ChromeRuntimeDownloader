@@ -16,6 +16,10 @@ param(
 )
 
 
+# github.com use only tsl2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+
 
 # 
 $BL = @{}
