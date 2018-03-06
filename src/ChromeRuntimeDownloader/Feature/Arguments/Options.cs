@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using ChromeRuntimeDownloader.Defaults;
+using CommandLine;
 using CommandLine.Text;
 
 namespace ChromeRuntimeDownloader.Feature.Arguments
@@ -10,6 +11,10 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
             HelpText = "Directory where program creates chrome-runtime. Default value: current program directory")]
         public string Destination { get; set; }
 
+        [Option('l', "list",
+            HelpText = "List known packages")]
+        public bool ShowList { get; set; }
+
 
         [Option('c', "configFile",
             DefaultValue = "crd-config.json",
@@ -18,9 +23,9 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
 
 
         [Option('p', "packageVersion",
-            DefaultValue = "57.0.0",
+         
             HelpText =
-                "Package version. Default value: '57.0.0'. By default, the program knows only this version. Other versions should  be specified in config file.")]
+                "Package version. Default value: '"+ KnownPacks.DEFAULT_PACKAGE_VERSION + "'. By default, the program knows only this version. Other versions should  be specified in config file.")]
         public string PackageVersion { get; set; }
 
         [HelpOption]

@@ -11,6 +11,10 @@ namespace ChromeRuntimeDownloader.Feature.Workers.Models
     {
         protected List<(string src, string dst)> FilesToCopy = new List<(string src, string dst)>();
 
+        protected WorkerBase()
+        {
+        }
+
         public WorkerBase(PackageType type, string packageVersion)
         {
             Type = type;
@@ -37,6 +41,21 @@ namespace ChromeRuntimeDownloader.Feature.Workers.Models
             return list;
         }
 
+
+        public List<(string src, string dst)> CreateCopyList(string srcDir, string dstDir, List<string> files)
+        {
+            var list = new List<(string src, string dst)>();
+
+            foreach (var file in files)
+            {
+                var srcFullPath = Path.Combine(srcDir, file);
+                var dst = Path.Combine(dstDir, file);
+                list.Add((srcFullPath, dst));
+            }
+
+
+            return list;
+        }
 
         public List<(string src, string dst)> MatchFiles(string srcDir, string dstDir, List<string> files,
             string dstSufix)

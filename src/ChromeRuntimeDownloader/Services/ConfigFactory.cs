@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using ChromeRuntimeDownloader.Defaults;
 using ChromeRuntimeDownloader.Models;
 
 namespace ChromeRuntimeDownloader.Services
@@ -48,17 +49,14 @@ namespace ChromeRuntimeDownloader.Services
         {
             var config = new Config();
 
-            var defaultPack = new KeyValuePair<string, List<NugetInfo>>("57.0.0", new List<NugetInfo>
+            
+
+            foreach (var pack in KnownPacks.Packs)
             {
-                new NugetInfo(PackageType.CefSharpCommon, "CefSharp.Common", "57.0.0"),
-                new NugetInfo(PackageType.CefSharpWpf, "CefSharp.Wpf", "57.0.0"),
-                new NugetInfo(PackageType.CefRedistX64, "cef.redist.x64", "3.2987.1601"),
-                new NugetInfo(PackageType.CefRedistX86, "cef.redist.x86", "3.2987.1601")
-            });
-
-
-            config.Packages.Add(defaultPack.Key, defaultPack.Value);
-            config.DefaultPackageVersion = "57.0.0";
+                config.Packages.Add(pack.Key, pack.Value);
+            }
+            
+            config.DefaultPackageVersion = KnownPacks.DEFAULT_PACKAGE_VERSION;
             return config;
         }
     }

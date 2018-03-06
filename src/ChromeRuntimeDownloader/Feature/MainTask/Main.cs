@@ -21,22 +21,19 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
             _workerService = workerService;
             _tmpDir = Path.Combine(_dstRuntimeDir, "tmp");
             Io.CreateDirIfNotExist(_tmpDir);
-            Io.ClearFolder(_tmpDir);
+            //Io.ClearFolder(_tmpDir);
         }
 
         public async Task Make(string runTimeVersion, Config config)
         {
-            var set = config.Packages.FirstOrDefault(x => x.Key == config.DefaultPackageVersion).Value;
+            var set = config.Packages.FirstOrDefault(x => x.Key == runTimeVersion).Value;
             if (set == null)
-                throw new ArgumentNullException($"Cannot find package version: '{config.DefaultPackageVersion}'");
+                throw new ArgumentNullException($"Cannot find package version: '{runTimeVersion}'");
 
 
             Console.WriteLine($"Runtime will be created in: {Path.Combine(_dstRuntimeDir, runTimeVersion)}");
             Console.WriteLine("Application will use those packages, to create runtime:");
-            foreach (var nugetInfo in set)
-            {
-                Console.WriteLine($"Name: {nugetInfo.Name}; Version: {nugetInfo.Version}");
-            }
+            foreach (var nugetInfo in set) Console.WriteLine($"Name: {nugetInfo.Name}; Version: {nugetInfo.Version}");
 
             Console.WriteLine($"Begin process");
             var sw = new Stopwatch();
@@ -44,9 +41,9 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
             var p = set.Select(x => new PackagesInfo(x)).ToArray();
             var p1 = await Download(p);
             var p2 = await Extract(p1);
-            var p3 = await CopyToDestination(p1, runTimeVersion);
+            var p3 = await CopyToDestination(p2, runTimeVersion);
             sw.Stop();
-            Console.WriteLine($"Done - process took: {(sw.ElapsedMilliseconds)/1000}s");
+            Console.WriteLine($"Done - process took: {sw.ElapsedMilliseconds / 1000}s");
             Io.RemoveFolder(_tmpDir);
         }
 
@@ -70,15 +67,16 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
         private async Task<PackagesInfo[]> Download(PackagesInfo[] packages)
         {
             var tmp = Path.Combine(_tmpDir, "download");
-            Io.RemoveFolder(tmp);
             Io.CreateDirIfNotExist(tmp);
             foreach (var packagesInfo in packages)
             {
-                var filePath = await Common.Download.DownloadNugetAsync(
-                    packagesInfo.NugetInfo.Name,
-                    packagesInfo.NugetInfo.Version,
-                    tmp);
-                packagesInfo.SetNugetPath(filePath);
+                var n = packagesInfo.NugetInfo;
+                var url = $"https://www.nuget.org/api/v2/package/{n.Name}/{n.Version}";
+
+                var fileName = $"{n.Name.ToLower()}.{n.Version.ToLower()}.nupkg";
+                var dstFile = Path.Combine(tmp, fileName);
+                if (!File.Exists(dstFile)) await Common.Download.DownloadNugetAsync(url, dstFile);
+                packagesInfo.SetNugetPath(dstFile);
             }
 
             return packages;

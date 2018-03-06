@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Common;
 using ChromeRuntimeDownloader.Common.Version;
@@ -35,16 +36,41 @@ namespace ChromeRuntimeDownloader
             {
                 var config = ConfigFactory.GetConfig(programDir, options.Config);
 
+
+                if (options.ShowList)
+                {
+                    foreach (var p in config.Packages)
+                    {
+                        Console.WriteLine($"Package: '{p.Key}' ");
+                        foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
+                        Console.WriteLine();
+                    }
+                    return;
+                }
+
                 var workDir = options.Destination == "." || options.Destination == ""
                     ? programDir
                     : options.Destination;
 
                 if (!Directory.Exists(workDir))
-                    throw new DirectoryNotFoundException($"Can not find directory: '{workDir}'");
+                {
+                    Console.WriteLine($"Can not find directory: '{workDir}'");
+                    return;
+                }
 
-                var packageVersion = string.IsNullOrEmpty(options.Config)
-                    ? config.DefaultPackageVersion
-                    : options.PackageVersion;
+                var packageVersion = config.DefaultPackageVersion;
+
+                if (!string.IsNullOrEmpty(options.PackageVersion))
+                {
+                    var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
+                    if (!packExists)
+                    {
+                        Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
+                        return;
+                    }
+
+                    packageVersion = options.PackageVersion;
+                }
 
 
                 Console.WriteLine($"Work dir: {workDir}");

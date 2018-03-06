@@ -41,5 +41,11 @@ namespace ChromeRuntimeDownloader.Common
             await DownloadFileAsync(url, fileToDownload);
             return fileToDownload;
         }
+
+        public static async Task DownloadNugetAsync(string url,  string dstFile)
+        {
+            await DownloadFileAsync(url, dstFile);
+            
+        }
     }
 }
