@@ -139,6 +139,7 @@ task Make-Nuget  {
 	$src =  "$margedDir/*"
 	$dst = $mainDir
 	"Copy main; Src: $src ; Dst: $dst"
+	"Version: $($BL.BuildVersion)"
 	Copy-Item  $src  -Recurse  -Destination $dst
 
 

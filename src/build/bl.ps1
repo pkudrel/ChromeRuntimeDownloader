@@ -8,9 +8,9 @@
 
 param(
 	$scriptFile = (Join-Path (Split-Path $MyInvocation.MyCommand.Path -Parent) ".build.ps1"),
-	[parameter(Mandatory=$false)] [int] $major = 0,
+	[parameter(Mandatory=$false)] [int] $major = 1,
 	[parameter(Mandatory=$false)] [int] $minor = 0,
-	[parameter(Mandatory=$false)] [int] $patch = 0,
+	[parameter(Mandatory=$false)] [int] $patch = 1,
 	$buildCounter = 0,
 	$psGitVersionStrategy = "standard"
 )
