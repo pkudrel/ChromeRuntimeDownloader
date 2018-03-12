@@ -9,6 +9,7 @@ using ChromeRuntimeDownloader.Feature.MainTask;
 using ChromeRuntimeDownloader.Feature.Workers.Services;
 using ChromeRuntimeDownloader.Services;
 using CommandLine;
+using CommandLine.Text;
 
 namespace ChromeRuntimeDownloader
 {
@@ -17,75 +18,74 @@ namespace ChromeRuntimeDownloader
         private static void Main(string[] args)
         {
             MainAsync(args).GetAwaiter().GetResult();
-
-            //var x = Task.Run(() => MainAsync(args));
-            //Console.ReadLine();
         }
 
         private static async Task MainAsync(string[] args)
         {
-            Console.WriteLine($"Chrome Runtime Downloader {VersionGenerator.GetVersion().SemVer}");
-
             var programDir = Tools.GetProgramDir();
-            var options = new Options();
-            var isValid = Parser.Default.ParseArgumentsStrict(args, options);
+
+            var parser = new Parser(config => { config.HelpWriter = null; });
+            var isValid = parser.ParseArguments<Options>(args);
 
 
-            // Parse in 'strict mode', success or quit
-            if (isValid)
-            {
-                var config = ConfigFactory.GetConfig(programDir, options.Config);
-
-
-                if (options.ShowList)
+            var res = isValid
+                .WithParsed(async options =>
                 {
-                    foreach (var p in config.Packages)
+                    var config = ConfigFactory.GetConfig(programDir, options.Config);
+
+
+                    if (options.ShowList)
                     {
-                        Console.WriteLine($"Package: '{p.Key}' ");
-                        foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
-                        Console.WriteLine();
-                    }
-                    return;
-                }
+                        foreach (var p in config.Packages)
+                        {
+                            Console.WriteLine($"Package: '{p.Key}' ");
+                            foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
+                            Console.WriteLine();
+                        }
 
-                var workDir = options.Destination == "." || options.Destination == ""
-                    ? programDir
-                    : options.Destination;
-
-                if (!Directory.Exists(workDir))
-                {
-                    Console.WriteLine($"Can not find directory: '{workDir}'");
-                    return;
-                }
-
-                var packageVersion = config.DefaultPackageVersion;
-
-                if (!string.IsNullOrEmpty(options.PackageVersion))
-                {
-                    var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
-                    if (!packExists)
-                    {
-                        Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
                         return;
                     }
 
-                    packageVersion = options.PackageVersion;
-                }
+                    var workDir = options.Destination == "." || options.Destination == ""
+                        ? programDir
+                        : options.Destination;
+
+                    if (!Directory.Exists(workDir))
+                    {
+                        Console.WriteLine($"Can not find directory: '{workDir}'");
+                        return;
+                    }
+
+                    var packageVersion = config.DefaultPackageVersion;
+
+                    if (!string.IsNullOrEmpty(options.PackageVersion))
+                    {
+                        var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
+                        if (!packExists)
+                        {
+                            Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
+                            return;
+                        }
+
+                        packageVersion = options.PackageVersion;
+                    }
 
 
-                Console.WriteLine($"Work dir: {workDir}");
-                Console.WriteLine($"Package version: {packageVersion}");
+                    Console.WriteLine($"Work dir: {workDir}");
+                    Console.WriteLine($"Package version: {packageVersion}");
 
-
-                var workerService = new WorkerService();
-                var m = new Main(workDir, workerService);
-                await m.Make(packageVersion, config);
-            }
-            else
-            {
-                // Display the default usage information
-                Console.WriteLine(options.GetUsage());
-            }
+                    var workerService = new WorkerService();
+                    var m = new Main(workDir, workerService);
+                    await m.Make(packageVersion, config);
+                })
+                .WithNotParsed(errors =>
+                {
+                    var helpText = HelpText.AutoBuild(isValid);
+                    helpText.Heading = $"ChromeRuntimeDownloader {VersionGenerator.GetVersion().SemVer}";
+                    helpText.Copyright = "Copyright (c) 2017-2018 DenebLab";
+                    Console.WriteLine(helpText);
+                });
+            // Parse in 'strict mode', success or quit
         }
     }
 }
