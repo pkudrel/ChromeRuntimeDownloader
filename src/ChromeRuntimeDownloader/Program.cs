@@ -25,14 +25,11 @@ namespace ChromeRuntimeDownloader
             var programDir = Tools.GetProgramDir();
 
             var parser = new Parser(config => { config.HelpWriter = null; });
-            var isValid = parser.ParseArguments<Options>(args);
-
-
-            var res = isValid
+            var result = parser.ParseArguments<Options>(args);
+            result
                 .WithParsed(async options =>
                 {
                     var config = ConfigFactory.GetConfig(programDir, options.Config);
-
 
                     if (options.ShowList)
                     {
@@ -80,7 +77,7 @@ namespace ChromeRuntimeDownloader
                 })
                 .WithNotParsed(errors =>
                 {
-                    var helpText = HelpText.AutoBuild(isValid);
+                    var helpText = HelpText.AutoBuild(result);
                     helpText.Heading = $"ChromeRuntimeDownloader {VersionGenerator.GetVersion().SemVer}";
                     helpText.Copyright = "Copyright (c) 2017-2018 DenebLab";
                     Console.WriteLine(helpText);
