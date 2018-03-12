@@ -67,7 +67,6 @@ namespace ChromeRuntimeDownloader
                         packageVersion = options.PackageVersion;
                     }
 
-
                     Console.WriteLine($"Work dir: {workDir}");
                     Console.WriteLine($"Package version: {packageVersion}");
 
@@ -82,7 +81,7 @@ namespace ChromeRuntimeDownloader
                     helpText.Copyright = "Copyright (c) 2017-2018 DenebLab";
                     Console.WriteLine(helpText);
                 });
-            // Parse in 'strict mode', success or quit
+            
         }
     }
 }
