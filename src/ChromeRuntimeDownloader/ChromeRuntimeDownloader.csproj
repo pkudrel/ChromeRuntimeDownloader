@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\HttpClientDownloadWithProgress.cs" />
     <Compile Include="Common\Tools.cs" />
     <Compile Include="Common\Version\Version.cs" />
     <Compile Include="Common\Version\VersionGenerator.cs" />

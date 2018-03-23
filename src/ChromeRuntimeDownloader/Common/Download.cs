@@ -8,7 +8,7 @@ namespace ChromeRuntimeDownloader.Common
 {
     public static class Download
     {
-        public static async Task<bool> DownloadFileAsync(string fileUrl, string dst)
+        public static async Task DownloadFileAsync(string fileUrl, string dst)
         {
             var downloadLink = new Uri(fileUrl);
             var file = Path.GetFileName(dst);
@@ -30,22 +30,7 @@ namespace ChromeRuntimeDownloader.Common
                 pb.Finish();
             }
 
-            return true;
-        }
-
-        public static async Task<string> DownloadNugetAsync(string name, string version, string dstDirectory)
-        {
-            var url = $"https://www.nuget.org/api/v2/package/{name}/{version}";
-            var fileName = $"{name.ToLower()}.{version.ToLower()}.nupkg";
-            var fileToDownload = Path.Combine(dstDirectory, fileName);
-            await DownloadFileAsync(url, fileToDownload);
-            return fileToDownload;
-        }
-
-        public static async Task DownloadNugetAsync(string url,  string dstFile)
-        {
-            await DownloadFileAsync(url, dstFile);
-            
+           
         }
     }
 }
