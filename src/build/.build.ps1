@@ -140,6 +140,7 @@ task Make-Nuget  {
 	$dst = $mainDir
 	"Copy main; Src: $src ; Dst: $dst"
 	"Version: $($BL.BuildVersion)"
+	"Version SemVer: $($BL.BuildVersion.SemVer)"
 	Copy-Item  $src  -Recurse  -Destination $dst
 
 
@@ -150,7 +151,7 @@ task Make-Nuget  {
 	$spacFilePath = Join-Path $scriptsPath "nuget\nuget.nuspec"
 	$specFileOutPath = Join-Path $nugetDir "$appName.nuspec"
 	
-    
+    "Nuget path file: $($spacFilePath)"
     $spec = [xml](get-content $spacFilePath)
     $spec.package.metadata.version = ([string]$spec.package.metadata.version).Replace("{Version}", $BL.BuildVersion.SemVer)
     $spec.Save($specFileOutPath )
