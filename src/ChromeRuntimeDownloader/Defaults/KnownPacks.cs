@@ -5,7 +5,7 @@ namespace ChromeRuntimeDownloader.Defaults
 {
     public static class KnownPacks
     {
-        public const string DEFAULT_PACKAGE_VERSION = "63.0.1";
+        public const string DEFAULT_PACKAGE_VERSION = "63.0.3";
 
         public static KeyValuePair<string, List<NugetInfo>>[] Packs =
         {
@@ -42,6 +42,31 @@ namespace ChromeRuntimeDownloader.Defaults
                     new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}
                 }),
                 new NugetInfo(PackageType.CefSharpWpf, "CefSharp.Wpf", "63.0.1", new[]
+                {
+                    new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
+                    new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}
+                }),
+                new NugetInfo(PackageType.CefRedistX64, "cef.redist.x64", "3.3239.1723", new[]
+                {
+                    new CopyPath {Src = "/CEF", Dst = "/x64"},
+                    new CopyPath {Src = "/CEF/locales", Dst = "/x64/locales"},
+                    new CopyPath {Src = "/CEF/swiftshader", Dst = "/x64/swiftshader"}
+                }),
+                new NugetInfo(PackageType.CefRedistX86, "cef.redist.x86", "3.3239.1723", new[]
+                {
+                    new CopyPath {Src = "/CEF/", Dst = "/x86/"},
+                    new CopyPath {Src = "/CEF/locales", Dst = "/x86/locales"},
+                    new CopyPath {Src = "/CEF/swiftshader", Dst = "/x86/swiftshader"}
+                })
+            }),
+            new KeyValuePair<string, List<NugetInfo>>("63.0.3", new List<NugetInfo>
+            {
+                new NugetInfo(PackageType.CefSharpCommon, "CefSharp.Common", "63.0.3", new[]
+                {
+                    new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
+                    new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}
+                }),
+                new NugetInfo(PackageType.CefSharpWpf, "CefSharp.Wpf", "63.0.3", new[]
                 {
                     new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
                     new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}

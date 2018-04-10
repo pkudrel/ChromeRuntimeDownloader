@@ -1,4 +1,7 @@
-﻿namespace ChromeRuntimeDownloader.Models
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace ChromeRuntimeDownloader.Models
 {
     public class NugetInfo
     {
@@ -9,7 +12,7 @@
             Version = version;
             CopyPaths = copyPaths;
         }
-
+        [JsonConverter(typeof(StringEnumConverter))]
         public PackageType PackageType { get; }
         public string Name { get; set; }
         public string Version { get; set; }

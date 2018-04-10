@@ -2,6 +2,7 @@
 using System.IO;
 using ChromeRuntimeDownloader.Defaults;
 using ChromeRuntimeDownloader.Models;
+using Newtonsoft.Json;
 
 namespace ChromeRuntimeDownloader.Services
 {
@@ -28,7 +29,7 @@ namespace ChromeRuntimeDownloader.Services
         private static Config MargeConfigs(Config config, string configFilePath)
         {
             var json = File.ReadAllText(configFilePath);
-            var configDisk = SimpleJson.SimpleJson.DeserializeObject<Config>(json);
+            var configDisk = JsonConvert.DeserializeObject<Config>(json);
 
             //packages
             foreach (var package in configDisk.Packages)
