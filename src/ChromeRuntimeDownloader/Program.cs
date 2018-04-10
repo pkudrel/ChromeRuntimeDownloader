@@ -9,7 +9,6 @@ using ChromeRuntimeDownloader.Feature.MainTask;
 using ChromeRuntimeDownloader.Feature.Workers.Services;
 using ChromeRuntimeDownloader.Services;
 using CommandLine;
-using Newtonsoft.Json;
 
 namespace ChromeRuntimeDownloader
 {
@@ -46,12 +45,14 @@ namespace ChromeRuntimeDownloader
                         foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
                         Console.WriteLine();
                     }
+
                     return;
                 }
 
                 var workDir = options.Destination == "." || options.Destination == ""
                     ? programDir
                     : options.Destination;
+
                 if (!Directory.Exists(workDir))
                 {
                     Console.WriteLine($"Can not find directory: '{workDir}'");
