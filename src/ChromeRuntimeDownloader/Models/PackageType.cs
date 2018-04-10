@@ -5,6 +5,7 @@
         CefRedistX86,
         CefRedistX64,
         CefSharpCommon,
-        CefSharpWpf
+        CefSharpWpf,
+        CefSharpWinForms
     }
 }

@@ -1,22 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Vendors.ShellProgressBar;
 
 namespace ChromeRuntimeDownloader.Common
 {
     public static class Extract
     {
-        public static async Task<string> ExtractZipToDirectory(string zipFile, string dstDirectory)
+        public static string ExtractZipToDirectory(string zipFile, string dstDirectory)
         {
-            var val = await Task.Run(() => ExtractZipToDirectoryImpl(zipFile, dstDirectory));
-
-            return val;
+            return ExtractZipToDirectoryImpl(zipFile, dstDirectory);
         }
 
         private static string ExtractZipToDirectoryImpl(string zipFile, string dstDirectory)
         {
+            if (!File.Exists(zipFile))
+            {
+                var a = zipFile;
+            }
+
             using (var source = ZipFile.OpenRead(zipFile))
             {
                 var file = Path.GetFileName(zipFile);
@@ -55,12 +57,12 @@ namespace ChromeRuntimeDownloader.Common
                             entry.ExtractToFile(fileDestinationPath, true);
                         }
                     }
+
                     pb.Finish();
-                    
                 }
+
                 return di.FullName;
             }
-            
         }
 
         private static double GetNormalizedValue(int max, int current)

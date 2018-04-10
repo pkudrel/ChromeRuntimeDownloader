@@ -17,7 +17,7 @@ param(
 	$buildTmpDir  = (Join-Path $BL.BuildOutPath "tmp" ),
 
 	$buildReadyDir  = (Join-Path $BL.BuildOutPath "ready" ),
-	$Dirs = (@{"marge" = "marge"; "runtime" = "runtime"; "build" = "build"; "nuget" = "nuget"; "main" = "main"  }),
+	$Dirs = (@{"marge" = "marge"; "runtime" = "runtime"; "build" = "build"; "nuget" = "nuget"; "main" = "main" ; "tools" = "tools"  }),
 	$buildWorkDir  = (Join-Path $buildTmpDir "build" ),
 	$target  = "Release"
 
@@ -127,7 +127,7 @@ task Make-Nuget  {
 	 "*** Make-Nuget  ***"
 	$margedDir = (Join-Path $buildTmpDir $Dirs.marge  )
 	$nugetDir = (Join-Path $buildTmpDir $Dirs.nuget  )
-	$mainDir = (Join-Path $nugetDir $Dirs.main  )
+	$mainDir = (Join-Path $nugetDir $Dirs.tools  )
 	$syrupDir = Join-Path $nugetDir "/_syrup"
 	$syruScriptspDir = Join-Path $syrupDir "scripts"
 
@@ -139,7 +139,7 @@ task Make-Nuget  {
 	$src =  "$margedDir/*"
 	$dst = $mainDir
 	"Copy main; Src: $src ; Dst: $dst"
-	"Version: $($BL.BuildVersion)"
+	"Version SemVer: $($BL.BuildVersion.SemVer)"
 	Copy-Item  $src  -Recurse  -Destination $dst
 
 
@@ -150,7 +150,7 @@ task Make-Nuget  {
 	$spacFilePath = Join-Path $scriptsPath "nuget\nuget.nuspec"
 	$specFileOutPath = Join-Path $nugetDir "$appName.nuspec"
 	
-    
+    "Nuget path file: $($spacFilePath)"
     $spec = [xml](get-content $spacFilePath)
     $spec.package.metadata.version = ([string]$spec.package.metadata.version).Replace("{Version}", $BL.BuildVersion.SemVer)
     $spec.Save($specFileOutPath )

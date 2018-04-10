@@ -35,16 +35,17 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
             Console.WriteLine("Application will use those packages, to create runtime:");
             foreach (var nugetInfo in set) Console.WriteLine($"Name: {nugetInfo.Name}; Version: {nugetInfo.Version}");
 
+
             Console.WriteLine($"Begin process");
             var sw = new Stopwatch();
             sw.Start();
             var p = set.Select(x => new PackagesInfo(x)).ToArray();
             var p1 = await Download(p);
-            var p2 = await Extract(p1);
+            var p2 = Extract(p1);
             var p3 = await CopyToDestination(p2, runTimeVersion);
             sw.Stop();
             Console.WriteLine($"Done - process took: {sw.ElapsedMilliseconds / 1000}s");
-            Io.RemoveFolder(_tmpDir);
+            // Io.RemoveFolder(_tmpDir);
         }
 
         private async Task<string> CopyToDestination(PackagesInfo[] packages, string runTimeVersion)
@@ -75,14 +76,14 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
 
                 var fileName = $"{n.Name.ToLower()}.{n.Version.ToLower()}.nupkg";
                 var dstFile = Path.Combine(tmp, fileName);
-                if (!File.Exists(dstFile)) await Common.Download.DownloadNugetAsync(url, dstFile);
+                if (!File.Exists(dstFile)) await Common.Download.DownloadFileAsync(url, dstFile);
                 packagesInfo.SetNugetPath(dstFile);
             }
 
             return packages;
         }
 
-        private async Task<PackagesInfo[]> Extract(PackagesInfo[] packages)
+        private PackagesInfo[] Extract(PackagesInfo[] packages)
         {
             var tmp = Path.Combine(_tmpDir, "extract");
             Io.RemoveFolder(tmp);
@@ -92,7 +93,7 @@ namespace ChromeRuntimeDownloader.Feature.MainTask
                 var dstDir = Path.Combine(tmp,
                     Path.GetFileNameWithoutExtension(packagesInfo.NugetPath) ?? throw new InvalidOperationException());
                 Io.CreateDirIfNotExist(dstDir);
-                var filePath = await Common.Extract.ExtractZipToDirectory(packagesInfo.NugetPath, dstDir);
+                var filePath = Common.Extract.ExtractZipToDirectory(packagesInfo.NugetPath, dstDir);
                 packagesInfo.SetUnzipPath(dstDir);
             }
 

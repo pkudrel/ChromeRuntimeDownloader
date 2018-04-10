@@ -5,7 +5,7 @@ namespace ChromeRuntimeDownloader.Defaults
 {
     public static class KnownPacks
     {
-        public const string DEFAULT_PACKAGE_VERSION = "63.0.3";
+        public const string DEFAULT_PACKAGE_VERSION = "63.0.2";
 
         public static KeyValuePair<string, List<NugetInfo>>[] Packs =
         {
@@ -59,14 +59,19 @@ namespace ChromeRuntimeDownloader.Defaults
                     new CopyPath {Src = "/CEF/swiftshader", Dst = "/x86/swiftshader"}
                 })
             }),
-            new KeyValuePair<string, List<NugetInfo>>("63.0.3", new List<NugetInfo>
+            new KeyValuePair<string, List<NugetInfo>>("63.0.2", new List<NugetInfo>
             {
-                new NugetInfo(PackageType.CefSharpCommon, "CefSharp.Common", "63.0.3", new[]
+                new NugetInfo(PackageType.CefSharpCommon, "CefSharp.Common", "63.0.2", new[]
                 {
                     new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
                     new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}
                 }),
-                new NugetInfo(PackageType.CefSharpWpf, "CefSharp.Wpf", "63.0.3", new[]
+                new NugetInfo(PackageType.CefSharpWinForms, "CefSharp.WinForms", "63.0.2", new[]
+                {
+                    new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
+                    new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}
+                }),
+                new NugetInfo(PackageType.CefSharpWpf, "CefSharp.Wpf", "63.0.2", new[]
                 {
                     new CopyPath {Src = "/CefSharp/x64", Dst = "/x64"},
                     new CopyPath {Src = "/CefSharp/x86", Dst = "/x86"}

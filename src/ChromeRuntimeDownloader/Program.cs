@@ -7,8 +7,10 @@ using ChromeRuntimeDownloader.Common.Version;
 using ChromeRuntimeDownloader.Feature.Arguments;
 using ChromeRuntimeDownloader.Feature.MainTask;
 using ChromeRuntimeDownloader.Feature.Workers.Services;
+using ChromeRuntimeDownloader.Models;
 using ChromeRuntimeDownloader.Services;
 using CommandLine;
+using CommandLine.Text;
 
 namespace ChromeRuntimeDownloader
 {
@@ -17,76 +19,88 @@ namespace ChromeRuntimeDownloader
         private static void Main(string[] args)
         {
             MainAsync(args).GetAwaiter().GetResult();
-
-            //var x = Task.Run(() => MainAsync(args));
-            //Console.ReadLine();
         }
+
 
         private static async Task MainAsync(string[] args)
         {
-            Console.WriteLine($"Chrome Runtime Downloader {VersionGenerator.GetVersion().SemVer}");
+            var parser = new Parser(config => { config.HelpWriter = null; });
+            var result = parser.ParseArguments<Options>(args);
+            var res = result
+                .MapResult(
+                    async options => await RunAndReturnExitCodeAsync(options),
+                    errors => ShowErrors(result));
 
+            await res;
+        }
+
+
+        private static Task<int> ShowErrors(ParserResult<Options> errors)
+        {
+            var helpText = HelpText.AutoBuild(errors);
+            helpText.Heading = $"ChromeRuntimeDownloader {VersionGenerator.GetVersion().SemVer}";
+            helpText.Copyright = "Copyright (c) 2017-2018 DenebLab";
+            Console.WriteLine(helpText);
+            return Task.FromResult(1);
+        }
+
+
+        private static async Task<int> RunAndReturnExitCodeAsync(Options options)
+        {
             var programDir = Tools.GetProgramDir();
-            var options = new Options();
-            var isValid = Parser.Default.ParseArgumentsStrict(args, options);
+            var config = ConfigFactory.GetConfig(programDir, options.Config);
 
+            if (options.ShowList) return ShowPackagesList(config);
 
-            // Parse in 'strict mode', success or quit
-            if (isValid)
+            var workDir = GetWorkDir(options, programDir);
+
+            if (!Directory.Exists(workDir))
             {
-                var config = ConfigFactory.GetConfig(programDir, options.Config);
-
-
-                if (options.ShowList)
-                {
-                    foreach (var p in config.Packages)
-                    {
-                        Console.WriteLine($"Package: '{p.Key}' ");
-                        foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
-                        Console.WriteLine();
-                    }
-
-                    return;
-                }
-
-                var workDir = options.Destination == "." || options.Destination == ""
-                    ? programDir
-                    : options.Destination;
-
-                if (!Directory.Exists(workDir))
-                {
-                    Console.WriteLine($"Can not find directory: '{workDir}'");
-                    return;
-                }
-
-                var packageVersion = config.DefaultPackageVersion;
-
-                if (!string.IsNullOrEmpty(options.PackageVersion))
-                {
-                    var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
-                    if (!packExists)
-                    {
-                        Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
-                        return;
-                    }
-
-                    packageVersion = options.PackageVersion;
-                }
-
-
-                Console.WriteLine($"Work dir: {workDir}");
-                Console.WriteLine($"Package version: {packageVersion}");
-
-
-                var workerService = new WorkerService();
-                var m = new Main(workDir, workerService);
-                await m.Make(packageVersion, config);
+                Console.WriteLine($"Can not find directory: '{workDir}'");
+                return 0;
             }
-            else
+
+            var packageVersion = config.DefaultPackageVersion;
+
+            if (!string.IsNullOrEmpty(options.PackageVersion))
             {
-                // Display the default usage information
-                Console.WriteLine(options.GetUsage());
+                var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
+                if (!packExists)
+                {
+                    Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
+                    return 0;
+                }
+
+                packageVersion = options.PackageVersion;
             }
+
+            Console.WriteLine($"Work dir: {workDir}");
+            Console.WriteLine($"Package version: {packageVersion}");
+
+            var workerService = new WorkerService();
+            var m = new Main(workDir, workerService);
+            await m.Make(packageVersion, config);
+
+            return 0;
+        }
+
+        private static string GetWorkDir(Options options, string programDir)
+        {
+            return options.Destination == "." || options.Destination == ""
+                ? programDir
+                : options.Destination;
+        }
+
+        private static int ShowPackagesList(Config config)
+        {
+            foreach (var p in config.Packages)
+            {
+                Console.WriteLine($"Package: '{p.Key}' ");
+                foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
+                Console.WriteLine();
+            }
+
+            return 0;
         }
     }
 }
