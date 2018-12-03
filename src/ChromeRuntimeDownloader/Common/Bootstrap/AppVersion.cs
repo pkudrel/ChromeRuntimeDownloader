@@ -1,15 +1,15 @@
-﻿namespace ChromeRuntimeDownloader.Common.Version
+﻿namespace ChromeRuntimeDownloader.Common.Bootstrap
 {
-    public class Version
+    public class AppVersion
     {
-        public Version(string assemblyVersion, string assemblyFileVersion, string assemblyName)
+        public AppVersion(string assemblyVersion, string assemblyFileVersion, string assemblyName)
         {
             AssemblyVersion = assemblyVersion;
             AssemblyFileVersion = assemblyFileVersion;
             AssemblyName = assemblyName;
         }
 
-        public Version(string assemblyVersion, string assemblyFileVersion, string assemblyName,
+        public AppVersion(string assemblyVersion, string assemblyFileVersion, string assemblyName,
             string assemblyProductVersion, string semVer, string buildCounter,
             string branch, string dateTime, string env, string sha, string commitsCounter)
         {

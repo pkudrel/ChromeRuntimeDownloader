@@ -1,35 +1,52 @@
 using System;
 using System.Reflection;
 
-namespace ChromeRuntimeDownloader.Common.Version
+namespace ChromeRuntimeDownloader.Common.Bootstrap
 {
-    public class VersionGenerator
+    public class AppVersionBuilder
     {
-        private static readonly Version _current = new Worker().Make();
+        // ReSharper disable once ConvertToAutoProperty
+        private static AppVersion _appVersion;
+
+
+        private AppVersionBuilder()
+        {
+        }
 
         /// <summary>
         /// Example:
         /// 0.1.0+BuildCounter.18.Branch.dev.DateTime.2016-07-15T08:37:10Z.Env.local.Sha.a11caeb0db526c1707e8aa40aaec20a315edb119.CommitsCounter.36
         /// </summary>
+        /// <param name="asm"></param>
         /// <returns></returns>
-        public static Version GetVersion()
+        public static AppVersion GetVersion()
         {
-            return _current;
+            return _appVersion;
         }
 
+        public static AppVersion Init(Assembly asm)
+        {
+            _appVersion = GetVersion(asm);
+            return _appVersion;
+        }
+
+        private static AppVersion GetVersion(Assembly asm)
+        {
+            return new Worker(asm).Make();
+        }
 
         internal class Worker
         {
-            private static Assembly _assembly = Assembly.GetExecutingAssembly();
+            private static Assembly _assembly;
 
-            public Worker()
+            public Worker(Assembly asm)
             {
-                _assembly = Assembly.GetEntryAssembly();
+                _assembly = asm;
             }
 
             public string GetAssemblyVersion => _assembly.GetName().Version.ToString();
 
-            public Version Make()
+            public AppVersion Make()
             {
                 var name = _assembly.GetName();
                 var assemblyVersion = name.Version.ToString();
@@ -37,7 +54,7 @@ namespace ChromeRuntimeDownloader.Common.Version
 
                 var assemblyFileVersion = GetAttribute<AssemblyFileVersionAttribute>()?.Version;
                 var pv = GetAttribute<AssemblyInformationalVersionAttribute>();
-                var res = new Version(assemblyVersion, assemblyFileVersion, appName);
+                var res = new AppVersion(assemblyVersion, assemblyFileVersion, appName);
                 var i = pv?.InformationalVersion;
                 appName = GetAttribute<AssemblyProductAttribute>()?.Product;
                 if (i == null) return res;
@@ -46,7 +63,7 @@ namespace ChromeRuntimeDownloader.Common.Version
                 var sem = parts[0];
                 var info = new Info(parts[1]);
 
-                return new Version(assemblyVersion, assemblyFileVersion, appName,
+                return new AppVersion(assemblyVersion, assemblyFileVersion, appName,
                     parts[1], sem,
                     info.Get("BuildCounter"), info.Get("Branch"), info.Get("DateTime"),
                     info.Get("Env"), info.Get("Sha"), info.Get("CommitsCounter")

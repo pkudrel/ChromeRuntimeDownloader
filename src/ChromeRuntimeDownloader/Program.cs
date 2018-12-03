@@ -1,13 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using ChromeRuntimeDownloader.Common;
-using ChromeRuntimeDownloader.Common.Version;
+using ChromeRuntimeDownloader.Common.Bootstrap;
 using ChromeRuntimeDownloader.Feature.Arguments;
 using ChromeRuntimeDownloader.Feature.MainTask;
-using ChromeRuntimeDownloader.Feature.Workers.Services;
-using ChromeRuntimeDownloader.Models;
 using ChromeRuntimeDownloader.Services;
 using CommandLine;
 using CommandLine.Text;
@@ -18,7 +13,15 @@ namespace ChromeRuntimeDownloader
     {
         private static void Main(string[] args)
         {
-            MainAsync(args).GetAwaiter().GetResult();
+            try
+            {
+                MainAsync(args).GetAwaiter().GetResult();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
 
@@ -37,8 +40,9 @@ namespace ChromeRuntimeDownloader
 
         private static Task<int> ShowErrors(ParserResult<Options> errors)
         {
+            var env = AppEnvironmentBuilder.Instance.GetAppEnvironment();
             var helpText = HelpText.AutoBuild(errors);
-            helpText.Heading = $"ChromeRuntimeDownloader {VersionGenerator.GetVersion().SemVer}";
+            helpText.Heading = $"ChromeRuntimeDownloader {env.AppVersion.SemVer}";
             helpText.Copyright = "Copyright (c) 2017-2018 DenebLab";
             Console.WriteLine(helpText);
             return Task.FromResult(1);
@@ -47,60 +51,17 @@ namespace ChromeRuntimeDownloader
 
         private static async Task<int> RunAndReturnExitCodeAsync(Options options)
         {
-            var programDir = Tools.GetProgramDir();
-            var config = ConfigFactory.GetConfig(programDir, options.Config);
+            var env = Boot.Instance.GetAppEnvironment();
+            var setting = SettingsBuilder.Create(env, options);
+            var mpc = MainProcessSettingsBuilder.Create(env, setting);
+            Console.WriteLine($"Package config source: '{mpc.PackageConfigSource}'");
+            Console.WriteLine($"Destination dir: '{mpc.Destination}'");
+            Console.WriteLine($"Package id: '{mpc.PackageConfig.Name}'");
 
-            if (options.ShowList) return ShowPackagesList(config);
 
-            var workDir = GetWorkDir(options, programDir);
-
-            if (!Directory.Exists(workDir))
-            {
-                Console.WriteLine($"Can not find directory: '{workDir}'");
-                return 0;
-            }
-
-            var packageVersion = config.DefaultPackageVersion;
-
-            if (!string.IsNullOrEmpty(options.PackageVersion))
-            {
-                var packExists = config.Packages.Any(x => x.Key == options.PackageVersion);
-                if (!packExists)
-                {
-                    Console.WriteLine($"Can not find package version: '{options.PackageVersion}'");
-                    return 0;
-                }
-
-                packageVersion = options.PackageVersion;
-            }
-
-            Console.WriteLine($"Work dir: {workDir}");
-            Console.WriteLine($"Package version: {packageVersion}");
-
-            var workerService = new WorkerService();
-            var m = new Main(workDir, workerService);
-            await m.Make(packageVersion, config);
-
-            return 0;
-        }
-
-        private static string GetWorkDir(Options options, string programDir)
-        {
-            return options.Destination == "." || options.Destination == ""
-                ? programDir
-                : options.Destination;
-        }
-
-        private static int ShowPackagesList(Config config)
-        {
-            foreach (var p in config.Packages)
-            {
-                Console.WriteLine($"Package: '{p.Key}' ");
-                foreach (var i in p.Value) Console.WriteLine($"{i.Name} {i.Version}");
-                Console.WriteLine();
-            }
-
-            return 0;
+            var mp = new MainProcess(env);
+            await mp.Do(mpc);
+            return await Task.FromResult(0);
         }
     }
 }

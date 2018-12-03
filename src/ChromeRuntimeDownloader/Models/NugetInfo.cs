@@ -1,18 +1,11 @@
-﻿namespace ChromeRuntimeDownloader.Models
-{
-    public class NugetInfo
-    {
-        public NugetInfo(PackageType packageType, string name, string version, CopyPath[] copyPaths)
-        {
-            PackageType = packageType;
-            Name = name;
-            Version = version;
-            CopyPaths = copyPaths;
-        }
+﻿using System.Collections.Generic;
 
-        public PackageType PackageType { get; }
+namespace ChromeRuntimeDownloader.Models
+{
+    public class NugetDefinition
+    {
         public string Name { get; set; }
         public string Version { get; set; }
-        public CopyPath[] CopyPaths { get; }
+        public List<CopyPath> CopyPaths { get; set; } = new List<CopyPath>();
     }
 }

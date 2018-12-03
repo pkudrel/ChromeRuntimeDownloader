@@ -111,10 +111,11 @@ task Marge  {
 		Copy-Item $f -Destination $margedDir
 	}
 	
-	Copy-Item "ChromeRuntimeDownloader.exe"  -Destination $margedDir 
+	
+	Copy-Item "ChromeRuntimeDownloader.exe"  -Destination $margedDir/cdr.exe 
 
 	Set-Location  $margedDir
-	& $libz inject-dll --assembly "ChromeRuntimeDownloader.exe" --include *.dll  $exclude --move
+	& $libz inject-dll --assembly "cdr.exe" --include *.dll  $exclude --move
 
 }
 
@@ -166,8 +167,8 @@ task Make-Nuget  {
 
 task Publish-Local -If (-not   $env:TEAMCITY_VERSION ) {
     "Publish local"
-	$devDir = (Join-Path $BL.RepoRoot ".dev")
-	$standolone = (Join-Path $devDir  "standalone-run")
+	$devDir = (Join-Path $BL.RepoRoot "dev")
+	$standolone = (Join-Path $devDir  "standalone-ver")
 	$workDir = (Join-Path $devDir  "work-dir")
 
 	

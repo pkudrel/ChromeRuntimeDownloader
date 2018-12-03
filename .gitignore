@@ -33,5 +33,5 @@ src/build/tools/*
 stuff/*
 .build
 .secrets/*
-.dev/*
+dev/*
 src/.vs/*
