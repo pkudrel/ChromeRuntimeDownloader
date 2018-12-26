@@ -37,9 +37,6 @@
       <HintPath>..\packages\McMaster.Extensions.CommandLineUtils.2.2.5\lib\net45\McMaster.Extensions.CommandLineUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.CommandLine, Version=0.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.CommandLine.Experimental.0.1.0-alpha-63625-01\lib\netstandard2.0\System.CommandLine.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
@@ -71,7 +68,6 @@
     <Compile Include="Common\Io.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Feature\Arguments\CommandLineDefinition.cs" />
-    <Compile Include="Feature\Arguments\Extensions.cs" />
     <Compile Include="Feature\Arguments\Options.cs" />
     <Compile Include="Feature\MainTask\CopyWorker.cs" />
     <Compile Include="Feature\MainTask\MainProcess.cs" />

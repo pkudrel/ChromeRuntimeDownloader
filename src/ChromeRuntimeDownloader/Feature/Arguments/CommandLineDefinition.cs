@@ -1,96 +1,96 @@
 ﻿using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Common.Bootstrap;
 using ChromeRuntimeDownloader.Feature.MainTask;
 using ChromeRuntimeDownloader.Services;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace ChromeRuntimeDownloader.Feature.Arguments
 {
-    public class CommandLineDefinition
+    public static class CommandLineDefinition
     {
-        public RootCommand GetRootCommand(AppEnvironment env)
+        public static CommandLineApplication Make(AppEnvironment appEnvironment)
         {
-            var configFileString = new Option(
-                new[] { "--config-file" },
+            var app = new CommandLineApplication();
+
+            app.HelpOption();
+            var optionConfigFile = app.Option<string>(
+                "-c|--configFile <SUBJECT>",
                 $"Config file. Default value: {Constants.DEFAULT_PACKAGE_CONFIG_FILE}",
-                new Argument<string>("")
+                CommandOptionType.SingleValue).OnValidate(x =>
                 {
-                    ArgumentType = typeof(string),
-                    Description = $"Config file. Default value: {Constants.DEFAULT_PACKAGE_CONFIG_FILE}",
-                    Arity = ArgumentArity.ExactlyOne,
-                    Name = "configFile"
-                }.Decorate(argument =>
-                {
-                    argument.AddValidator(a =>
+                    var val = x.Items.Values.FirstOrDefault()?.ToString() ?? string.Empty; 
+                    if (string.IsNullOrWhiteSpace(val) == false)
                     {
-                       // return "aaa";
-                        return null;
-                        return string.Empty;
-                    });
-                })
-            );
+                        var isRooted = Path.IsPathRooted(val);
+                        if (isRooted)
+                        {
+                            return GetValidationResult(val);
+                        }
 
+                        var pathRelative = Path.Combine(appEnvironment.RootDir, val);
+                        return GetValidationResult(pathRelative);
+                    }
 
-            var destinationString = new Option(
-                new[] {"-d", "--destination"},
-                $"Directory where program creates chrome-runtime. Default value: {Constants.DEFAULT_PACKAGE_DIR}"
-                , new Argument<string>(Constants.DEFAULT_PACKAGE_DIR)
-                {
-                    Name = "destination"
+                    var defaultPath = Path.Combine(appEnvironment.RootDir, Constants.DEFAULT_PACKAGE_CONFIG_FILE);
+                    return GetValidationResult(defaultPath);
                 }
+               
             );
 
 
-            var arg2 = new Argument();
-            arg2.ArgumentType = typeof(bool);
-            arg2.Arity = ArgumentArity.OneOrMore;
-            arg2.Name = "Clean -- Name";
-            arg2.Description = "Clean -- Description";
+            var optionDestination = app.Option<string>(
+                "-d|--destination <SUBJECT>",
+                $"Directory where program creates chrome-runtime. Default value: {Constants.DEFAULT_PACKAGE_DIR}",
+                CommandOptionType.SingleValue);
 
-            var cleanBool = new Option(
-                new[] {"--clean"},
-                "Force clean after process.",
-                new Argument<bool>
-                {
-                    Name = "clean",
-                    Description = "Clean -- Description"
-                }
-            );
+            var optionClean = app.Option<bool>(
+                "--clean",
+                $"Force clean after process",
+                CommandOptionType.SingleValue);
+
+            app.OnExecute(async () =>
+            {
+                var configFile = optionConfigFile.HasValue()
+                    ? optionConfigFile.Value()
+                    : Constants.DEFAULT_PACKAGE_CONFIG_FILE;
+
+                var destination = optionDestination.HasValue()
+                    ? optionDestination.Value()
+                    : Constants.DEFAULT_PACKAGE_DIR;
+
+                var clean = optionClean.HasValue() && optionClean.ParsedValue;
 
 
-            var rootCommand = new RootCommand();
-            rootCommand.Description = "Chrome runtime downloader. Copyright(c) 2017-2019 DenebLab";
-            rootCommand.AddOption(configFileString);
-            rootCommand.AddOption(destinationString);
-            rootCommand.AddOption(cleanBool);
+                var env = Boot.Instance.GetAppEnvironment();
+                var options = new Options(configFile, destination, clean);
+                var setting = SettingsBuilder.Create(env, options);
+                var mpc = MainProcessSettingsBuilder.Create(env, setting);
+                Console.WriteLine($"Package config source: '{mpc.PackageConfigSource}'");
+                Console.WriteLine($"Destination dir: '{mpc.Destination}'");
+                Console.WriteLine($"Package id: '{mpc.PackageConfig.Name}'");
+                var mp = new MainProcess(env);
+                await mp.Do(mpc);
 
-            var method = typeof(CommandLineDefinition).GetMethod(nameof(DoSomething));
-            rootCommand.Handler = CommandHandler.Create(method, () => this);
-            return rootCommand;
+            });
+
+            return app;
         }
 
-        private MethodInfo GetMethodInfo(string name)
+        private static ValidationResult GetValidationResult(string val)
         {
-            return typeof(CommandLineDefinition)
-                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Single(m => m.Name == name);
-        }
-
-        public async Task DoSomething(string configFile, string destination, bool clean)
-        {
-            var env = Boot.Instance.GetAppEnvironment();
-            var options = new Options(configFile, destination, clean);
-            var setting = SettingsBuilder.Create(env, options);
-            var mpc = MainProcessSettingsBuilder.Create(env, setting);
-            Console.WriteLine($"Package config source: '{mpc.PackageConfigSource}'");
-            Console.WriteLine($"Destination dir: '{mpc.Destination}'");
-            Console.WriteLine($"Package id: '{mpc.PackageConfig.Name}'");
-            var mp = new MainProcess(env);
-            await mp.Do(mpc);
+            if (File.Exists(val))
+            {
+                return ValidationResult.Success;
+            }
+            else
+            {
+                return new ValidationResult($"Cannot find file: {val}");
+            }
         }
     }
 }
