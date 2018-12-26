@@ -97,7 +97,6 @@ class Build : NukeBuild
             MSBuild(s => s
                 .SetTargetPath(Solution)
                 .SetTargets("Rebuild")
-                .SetTargetPlatform(MSBuildTargetPlatform.x64)
                 .SetOutDir(buildOut)
                 .SetVerbosity(MSBuildVerbosity.Quiet)
                 .SetConfiguration(Configuration)
@@ -123,7 +122,7 @@ class Build : NukeBuild
 
             using (var process = ProcessTasks.StartProcess(
                 LibzPath,
-                "inject-dll --assembly SampleAnalyzer.exe --include *.dll --move",
+                "inject-dll --assembly ChromeRuntimeDownloader.exe --include *.dll --move",
                 margeOut))
             {
                 process.AssertWaitForExit();
@@ -132,5 +131,5 @@ class Build : NukeBuild
             }
         });
 
-    public static int Main() => Execute<Build>(x => x.Compile);
+    public static int Main() => Execute<Build>(x => x.Marge);
 }
