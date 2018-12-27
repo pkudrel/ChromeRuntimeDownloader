@@ -35,3 +35,4 @@ stuff/*
 .secrets/*
 dev/*
 src/.vs/*
+.tmp
