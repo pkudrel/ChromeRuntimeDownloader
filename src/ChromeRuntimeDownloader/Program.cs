@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Common.Bootstrap;
 using ChromeRuntimeDownloader.Feature.Arguments;
@@ -28,13 +27,12 @@ namespace ChromeRuntimeDownloader
 
             var env = Boot.Instance.GetAppEnvironment();
             var app = CommandLineDefinition.Make(env);
-
             return app.Execute(args);
-
-
-
-           
+                
         }
-        
+    }
+
+    internal class Make
+    {
     }
 }

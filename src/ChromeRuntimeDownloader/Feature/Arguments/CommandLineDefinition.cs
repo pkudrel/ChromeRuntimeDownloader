@@ -2,8 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using ChromeRuntimeDownloader.Common.Bootstrap;
 using ChromeRuntimeDownloader.Feature.MainTask;
 using ChromeRuntimeDownloader.Services;
@@ -23,14 +21,11 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
                 $"Config file. Default value: {Constants.DEFAULT_PACKAGE_CONFIG_FILE}",
                 CommandOptionType.SingleValue).OnValidate(x =>
                 {
-                    var val = x.Items.Values.FirstOrDefault()?.ToString() ?? string.Empty; 
+                    var val = x.Items.Values.FirstOrDefault()?.ToString() ?? string.Empty;
                     if (string.IsNullOrWhiteSpace(val) == false)
                     {
                         var isRooted = Path.IsPathRooted(val);
-                        if (isRooted)
-                        {
-                            return GetValidationResult(val);
-                        }
+                        if (isRooted) return GetValidationResult(val);
 
                         var pathRelative = Path.Combine(appEnvironment.RootDir, val);
                         return GetValidationResult(pathRelative);
@@ -39,7 +34,6 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
                     var defaultPath = Path.Combine(appEnvironment.RootDir, Constants.DEFAULT_PACKAGE_CONFIG_FILE);
                     return GetValidationResult(defaultPath);
                 }
-               
             );
 
 
@@ -50,7 +44,7 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
 
             var optionClean = app.Option<bool>(
                 "--clean",
-                $"Force clean after process",
+                "Force clean after process",
                 CommandOptionType.SingleValue);
 
             app.OnExecute(async () =>
@@ -75,7 +69,6 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
                 Console.WriteLine($"Package id: '{mpc.PackageConfig.Name}'");
                 var mp = new MainProcess(env);
                 await mp.Do(mpc);
-
             });
 
             return app;
@@ -84,13 +77,8 @@ namespace ChromeRuntimeDownloader.Feature.Arguments
         private static ValidationResult GetValidationResult(string val)
         {
             if (File.Exists(val))
-            {
                 return ValidationResult.Success;
-            }
-            else
-            {
-                return new ValidationResult($"Cannot find file: {val}");
-            }
+            return new ValidationResult($"Cannot find file: {val}");
         }
     }
 }

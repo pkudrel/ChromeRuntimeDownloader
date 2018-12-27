@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "build", "build\build.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeRuntimeDownloader", "ChromeRuntimeDownloader\ChromeRuntimeDownloader.csproj", "{23B5913D-A1E9-447E-B873-DFD076F37C0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeRuntimeDownloader", "ChromeRuntimeDownloader\ChromeRuntimeDownloader.csproj", "{8566CF65-76CB-4F21-AD34-E8805459ED70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FC0833E0-B222-4B9D-A8D7-CC7E262C0D17}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,20 +15,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{FD6B57
 		..\appveyor.yml = ..\appveyor.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "build", "build\build.csproj", "{E349C535-173D-4B32-AA74-63A7DFBAB889}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23B5913D-A1E9-447E-B873-DFD076F37C0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23B5913D-A1E9-447E-B873-DFD076F37C0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23B5913D-A1E9-447E-B873-DFD076F37C0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23B5913D-A1E9-447E-B873-DFD076F37C0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8566CF65-76CB-4F21-AD34-E8805459ED70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8566CF65-76CB-4F21-AD34-E8805459ED70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8566CF65-76CB-4F21-AD34-E8805459ED70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8566CF65-76CB-4F21-AD34-E8805459ED70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E349C535-173D-4B32-AA74-63A7DFBAB889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E349C535-173D-4B32-AA74-63A7DFBAB889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E349C535-173D-4B32-AA74-63A7DFBAB889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E349C535-173D-4B32-AA74-63A7DFBAB889}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

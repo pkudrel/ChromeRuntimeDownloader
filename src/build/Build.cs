@@ -1,11 +1,13 @@
 using System;
 using Helpers;
 using Helpers.MagicVersionService;
+using NuGet.Common;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.MSBuild;
+using Nuke.Common.Tools.NuGet;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -50,6 +52,9 @@ class Build : NukeBuild
             Logger.Info($"Version: {b.SemVersion}");
             Logger.Info($"Date: {b.DateTime:s}Z");
             Logger.Info($"FullVersion: {b.InformationalVersion}");
+            Logger.Info($"NuGetPath: {ToolPathResolver.NuGetPackagesConfigFile}");
+            
+            
         });
 
 
@@ -57,8 +62,20 @@ class Build : NukeBuild
         .DependsOn(Information)
         .Executes(() =>
         {
+
+
             Downloader.DownloadIfNotExists("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", NugetPath,
                 "Nuget");
+            var toolsNugetFile = ToolsDir / "packages.config";
+            using (var process = ProcessTasks.StartProcess(
+                NugetPath,
+                $"install   {toolsNugetFile} -OutputDirectory {ToolsDir} -ExcludeVersion",
+                SourceDir))
+            {
+                process.AssertWaitForExit();
+                ControlFlow.AssertWarn(process.ExitCode == 0,
+                    "Nuget restore report generation process exited with some errors.");
+            }
         });
 
     Target Clean => _ => _
@@ -74,6 +91,7 @@ class Build : NukeBuild
         .DependsOn(Clean)
         .Executes(() =>
         {
+        
             using (var process = ProcessTasks.StartProcess(
                 NugetPath,
                 $"restore  {Solution.Path}",
@@ -131,5 +149,5 @@ class Build : NukeBuild
             }
         });
 
-    public static int Main() => Execute<Build>(x => x.Marge);
+    public static int Main() => Execute<Build>(x => x.CheckTools);
 }

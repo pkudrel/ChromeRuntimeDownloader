@@ -27,11 +27,19 @@ csx/
 obj/
 rcf/
 
+### Tools
+/tools/*
+!/tools/packages.config
+# add local tools 
+!/tools/LibZ.Tool*
+
+
+
 
 src/build/tools/*
 .tmp/*
 stuff/*
 .build
 .secrets/*
-.dev/*
+dev/*
 src/.vs/*
