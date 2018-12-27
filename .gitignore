@@ -29,10 +29,9 @@ rcf/
 
 
 src/build/tools/*
-
+.tmp/*
 stuff/*
 .build
 .secrets/*
-dev/*
+.dev/*
 src/.vs/*
-.tmp/*
